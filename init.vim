@@ -1,54 +1,78 @@
+" request:
+"   1. node
+"   2. npm
+"   3. python3 (pip3 install neovim)
+nnoremap <space>rl :so ~/.config/nvim/init.vim<CR>
+nnoremap <space>rc :e ~/.config/nvim/init.vim<CR>
 
-" ======================
-" === Enhance Editor ===
-" ======================
-
-set number " 行号
-set relativenumber " 相对行号
-set expandtab " 缩紧
-set tabstop=2 "一个tab等于2个空格
+set number
+set relativenumber
+set expandtab
+set tabstop=2
 set shiftwidth=2
 set softtabstop=2
 set ignorecase
+set smartcase
 set notimeout
-set jumpoptions=stack
-let mapleader="\<SPACE>"
+set mouse=a
 
+let mapleader = "\<SPACE>" " defualt ,
 
 if empty(glob('~/.config/nvim/autoload/plug.vim'))
-  :exe '! curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs
-                \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-  au VimEnter * PlugInstall --sync | Source $MYVIMMRC
+  :exe '!curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs
+              \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  au VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
 
-
-" =====================
-" === Plugins begin ===
-" =====================
-
+" =======================
+" ===  plugins  begin ===
+" =======================
 call plug#begin('~/.config/nvim/plugged')
+  
   " enhance editor
   Plug 'tomtom/tcomment_vim'
   
-  " terminal   alt + =
+  " terminal
   Plug 'skywind3000/vim-terminal-help'
-
+  
   " file explorer
   Plug 'preservim/nerdtree'
+
   " file finder
   Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
+
   " highlight
   Plug 'cateduo/vsdark.nvim'
   Plug 'jackguo380/vim-lsp-cxx-highlight'
+  
   " lsp
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
+  
   " debug
   Plug 'puremourning/vimspector', {'do': './install_gadget.py --enable-rust --enable-python'}
+  
 call plug#end()
+" =======================
+" ===   plugins  end  ===
+" =======================
 
 
-"  ==== preservim/nerdtree ====
+" =================================
+" ===   plugins  configuration  ===
+" =================================
+
+" ==== tomtom/tcomment_vim ====
+
+let g:tcomment_textobject_inlinecomment = ''
+nmap <LEADER>cn g>c
+vmap <LEADER>cn g>
+nmap <LEADER>cu g<c
+vmap <LEADER>cu g<
+
+
+" ==== preservim/nerdtree ====
+
 nnoremap <LEADER>e :NERDTreeToggle<CR>
 
 
@@ -66,18 +90,11 @@ nmap <leader>F :Leaderf rg<CR>
 let g:Lf_DevIconsFont = "DroidSansMono Nerd Font Mono"
 
 
+" ==== cateduo/vsdark.nvim ====
 
-
-" ===== cateduo/vsdark.nvim ====
 set termguicolors
 let g:vsdark_style = "dark"
 colorscheme vsdark
-
-
-
-
-
-
 
 
 " ==== jackguo380/vim-lsp-cxx-highlight ====
@@ -98,8 +115,6 @@ hi default link LspCxxHlSymParameter cxxParameter
 hi default link LspCxxHlSymClass cxxTypeAlias
 
 
-
-
 " ==== neoclide/coc.nvim ====
 
 " coc extensions
@@ -108,34 +123,27 @@ let g:coc_global_extensions = [
       \ 'coc-tsserver',
       \ 'coc-css',
       \ 'coc-html',
-      \ 'coc-vimlsp', 
+      \ 'coc-vimlsp',
       \ 'coc-cmake',
       \ 'coc-highlight',
       \ 'coc-pyright'
       \ ]
-" coc-vimlsp 代码补全
+
 
 set signcolumn=number " 提示符放到行号上 (:h signcolumn)
-" <TAB> to select candidate forward or
-" pump completion candidate
 inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh() "[tab]->向上选择
-" <s-TAB> to select candidate backward [shift+tab]->向下选择
-inoremap <expr><s-TAB> pumvisible() ? "\<C-p>" : "\<C-h>" 
-function! s:check_back_space() abort
-  let col = col('.')-1
-  return !col || getline('.')[col - 1] =~# '\s'
-endfunction
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
 
-" <CR> to comfirm selected candidate 回车选中
-" only when there's selected complete item
-if exists('*complete_info')
-  inoremap <silent><expr> <CR> complete_info(['selected'])['selected'] != -1 ? "\<C-y>" : "\<C-g>u\<CR>"
-endif
+" Make <CR> to accept selected completion item or notify coc.nvim to format
+" <C-g>u breaks current undo, please make your own choice.
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
-" [K]->查看文档 K 进入文档
+
+
 nnoremap <silent> K :call <SID>show_documentation()<CR>
 function! s:show_documentation()
   if(index(['vim', 'help'], &filetype) >= 0)
@@ -146,15 +154,6 @@ function! s:show_documentation()
     execute '!' . &keywordprg . " " . expand('<cword>')
   endif
 endfunction
-
-
-
-
-
-
-
-
-
 
 " highlight link CocHighlightText Visual
 " autocmd CursorHold * silent call CocActionAsync('highlight')   " TODO
@@ -226,4 +225,6 @@ command! -nargs=0 Gvimspector :call s:generate_vimspector_conf()
 
 nmap <Leader>v <Plug>VimspectorBalloonEval
 xmap <Leader>v <Plug>vimspectorBalloonEval
+
+
 

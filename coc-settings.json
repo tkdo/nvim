@@ -9,14 +9,15 @@
     "ccls": {
       "command": "ccls",
       "filetypes": [ "c", "cc", "cpp", "c++", "objc", "objcpp" ],
-      "rootPatterns": [ "compile_commands.json", ".git/", ".hg/", ".vscode", ".vim/" ],
+      //"rootPatterns": ["compile_commands.json", ".git/", ".hg/", ".vscode", ".vim/"],
+      "rootPatterns": [".ccls", "compile_commands.json", ".git/", ".hg/"],
       "initializationOptions": {
         "highlight": {"lsRanges": true},
         "cache": {
           "directory": "/tmp/ccls"
         },
-        "clang": {
-          "resourceDir": "/usr/local/Cellar/llvm@13/13.0.1/lib/clang/13.0.1",
+      "clang": {
+          "resourceDir": "/usr/local/Cellar/llvm/14.0.6_1/lib/clang/14.0.6",
           "extraArgs":
           ["-isystem","/Library/Developer/CommandLineTools/usr/include/c++/v1"]
         },
@@ -34,3 +35,4 @@
     }
   }
 }
+
